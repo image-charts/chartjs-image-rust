@@ -9,7 +9,7 @@ documentation = "https://docs.rs/chartjs_image"
 homepage = "https://www.image-charts.com/"
 repository = "https://github.com/image-charts/chartjs-image-rust"
 license = "MIT"
-keywords = ["chart.js","charts","chart-url","image","imagecharts"]
+keywords = ["chartjs","charts","chart-url","image","imagecharts"]
 categories = ["api-bindings", "visualization", "web-programming"]
 readme = "README.md"
 
