@@ -1,6 +1,6 @@
 [package]
 name = "chartjs_image"
-version = "6.1.40"
+version = "6.1.41"
 edition = "2021"
 rust-version = "1.85"
 authors = ["Francois-Guillaume Ribreau <github@fgribreau.com>"]
