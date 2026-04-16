@@ -1,8 +1,8 @@
 [package]
 name = "chartjs_image"
-version = "6.1.68"
+version = "6.1.69"
 edition = "2021"
-rust-version = "1.85"
+rust-version = "1.86"
 authors = ["Francois-Guillaume Ribreau <github@fgribreau.com>"]
 description = "Render Chart.JS as Image (or URL of Image)"
 documentation = "https://docs.rs/chartjs_image"
