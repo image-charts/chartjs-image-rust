@@ -1,8 +1,11 @@
 [package]
 name = "chartjs_image"
-version = "6.1.109"
+version = "6.1.110"
 edition = "2021"
 rust-version = "1.86"
+# MSRV-aware dependency resolution: keeps transitive deps (icu_* via reqwest->url->idna)
+# within what rust-version supports instead of pulling their latest MSRV-bumped releases.
+resolver = "3"
 authors = ["Francois-Guillaume Ribreau <github@fgribreau.com>"]
 description = "Render Chart.JS as Image (or URL of Image)"
 documentation = "https://docs.rs/chartjs_image"
