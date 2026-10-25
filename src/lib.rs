@@ -28,6 +28,53 @@ use std::collections::HashMap;
 use std::time::Duration;
 use thiserror::Error;
 
+/// Transport error message including every cause. Drops the signed URL.
+fn error_message(error: reqwest::Error) -> String {
+    let error = error.without_url();
+    let mut message = error.to_string();
+    let mut source = std::error::Error::source(&error);
+    while let Some(cause) = source {
+        message.push_str(": ");
+        message.push_str(&cause.to_string());
+        source = cause.source();
+    }
+    message
+}
+
+/// First usable http(s) proxy among the variables. Socks and invalid ones are skipped.
+fn proxy_url_from_env(names: &[&str]) -> Option<reqwest::Url> {
+    names.iter().find_map(|name| {
+        let raw = std::env::var(name).ok()?;
+        let raw = raw.trim();
+        if raw.is_empty() {
+            return None;
+        }
+        let with_scheme = if raw.contains("://") {
+            raw.to_string()
+        } else {
+            format!("http://{raw}")
+        };
+        let proxy_url = reqwest::Url::parse(&with_scheme).ok()?;
+        matches!(proxy_url.scheme(), "http" | "https").then_some(proxy_url)
+    })
+}
+
+/// Same rules as reqwest 0.11. ALL_PROXY wins. NO_PROXY applies. CGI skips HTTP_PROXY.
+fn env_proxies() -> Vec<reqwest::Proxy> {
+    let is_cgi = std::env::var_os("REQUEST_METHOD").is_some();
+    let mut http_names = vec!["ALL_PROXY", "all_proxy"];
+    if !is_cgi {
+        http_names.extend(["HTTP_PROXY", "http_proxy"]);
+    }
+    let https_names = ["ALL_PROXY", "all_proxy", "HTTPS_PROXY", "https_proxy"];
+    let http = proxy_url_from_env(&http_names).and_then(|url| reqwest::Proxy::http(url).ok());
+    let https = proxy_url_from_env(&https_names).and_then(|url| reqwest::Proxy::https(url).ok());
+    http.into_iter()
+        .chain(https)
+        .map(|proxy| proxy.no_proxy(reqwest::NoProxy::from_env()))
+        .collect()
+}
+
 /// Error type for ChartJSImage operations
 #[derive(Error, Debug)]
 #[error("{message}")]
@@ -390,7 +437,7 @@ impl ChartJSImage {
     }
 
     fn sign(&self, data: &str, secret: &str) -> String {
-        use hmac::{Hmac, Mac};
+        use hmac::{Hmac, KeyInit, Mac};
         use sha2::Sha256;
 
         type HmacSha256 = Hmac<Sha256>;
@@ -474,10 +521,13 @@ impl ChartJSImage {
     /// }
     /// ```
     pub async fn to_buffer(&self) -> Result<Vec<u8>, ChartJSImageError> {
-        let client = reqwest::Client::builder()
-            .timeout(self.config.timeout)
+        let client = env_proxies()
+            .into_iter()
+            .fold(reqwest::Client::builder().timeout(self.config.timeout).no_proxy(), |builder, proxy| {
+                builder.proxy(proxy)
+            })
             .build()
-            .map_err(|e| ChartJSImageError::new(e.to_string()))?;
+            .map_err(|e| ChartJSImageError::new(error_message(e)))?;
 
         let response = client
             .get(self.to_url())
@@ -485,8 +535,9 @@ impl ChartJSImage {
             .send()
             .await
             .map_err(|e| {
-                let mut err = ChartJSImageError::new(e.to_string());
-                if let Some(status) = e.status() {
+                let status = e.status();
+                let mut err = ChartJSImageError::new(error_message(e));
+                if let Some(status) = status {
                     err = err.with_status(status.as_u16());
                 }
                 err
@@ -498,7 +549,7 @@ impl ChartJSImage {
                 .bytes()
                 .await
                 .map(|b| b.to_vec())
-                .map_err(|e| ChartJSImageError::new(e.to_string()).with_status(status))
+                .map_err(|e| ChartJSImageError::new(error_message(e)).with_status(status))
         } else {
             let error_code = response
                 .headers()
@@ -598,18 +649,22 @@ impl ChartJSImage {
     /// }
     /// ```
     pub fn to_buffer_blocking(&self) -> Result<Vec<u8>, ChartJSImageError> {
-        let client = reqwest::blocking::Client::builder()
-            .timeout(self.config.timeout)
+        let client = env_proxies()
+            .into_iter()
+            .fold(reqwest::blocking::Client::builder().timeout(self.config.timeout).no_proxy(), |builder, proxy| {
+                builder.proxy(proxy)
+            })
             .build()
-            .map_err(|e| ChartJSImageError::new(e.to_string()))?;
+            .map_err(|e| ChartJSImageError::new(error_message(e)))?;
 
         let response = client
             .get(self.to_url())
             .header("User-Agent", self.build_user_agent())
             .send()
             .map_err(|e| {
-                let mut err = ChartJSImageError::new(e.to_string());
-                if let Some(status) = e.status() {
+                let status = e.status();
+                let mut err = ChartJSImageError::new(error_message(e));
+                if let Some(status) = status {
                     err = err.with_status(status.as_u16());
                 }
                 err
@@ -620,7 +675,7 @@ impl ChartJSImage {
             response
                 .bytes()
                 .map(|b| b.to_vec())
-                .map_err(|e| ChartJSImageError::new(e.to_string()).with_status(status))
+                .map_err(|e| ChartJSImageError::new(error_message(e)).with_status(status))
         } else {
             let error_code = response
                 .headers()
