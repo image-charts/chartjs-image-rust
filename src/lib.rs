@@ -271,7 +271,7 @@ impl ChartJSImage {
     pub fn chart(self, value: impl Into<String>) -> Self {
         self.clone_with("chart", value)
     }
-        /// Width of the chart
+        /// Width of the chart, from 1 to 999 pixels
     ///
     /// # Examples
     ///
@@ -284,7 +284,7 @@ impl ChartJSImage {
     pub fn width(self, value: impl Into<String>) -> Self {
         self.clone_with("width", value)
     }
-        /// Height of the chart
+        /// Height of the chart, from 1 to 999 pixels
     ///
     /// # Examples
     ///

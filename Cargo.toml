@@ -1,6 +1,6 @@
 [package]
 name = "chartjs_image"
-version = "6.1.110"
+version = "6.1.111"
 edition = "2021"
 rust-version = "1.99"
 # MSRV tracks the pinned CI Rust toolchain (.gitlab-ci.yml .rust-job image); both are
