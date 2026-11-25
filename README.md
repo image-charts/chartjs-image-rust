@@ -115,44 +115,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     - __[to_buffer() / to_buffer_blocking()](#to_buffer)__
     - __[to_file() / to_file_blocking()](#to_file)__
     - __[to_data_uri() / to_data_uri_blocking()](#to_data_uri)__
-        - __[c(value) - Javascript/JSON definition of the chart. Use a Chart.js configuration object.
-
-A configuration over one of these limits answers 400 with the error code IS_VALIDATION_ERROR:
-- data.labels, data.xLabels, data.yLabels, data.datasets[i].data, options.scales.xAxes and options.scales.yAxes are arrays, or null.
-- No object of the configuration holds a length key.
-- At most 20 axes, 1,000 datasets, 10,000 labels per label list and 10,000 points in total.
-- borderDash and zeroLineBorderDash: at most 16 entries, at least 1 pixel per dash or space on average, and a line width at most 2 times the pattern. Dashed datasets run through at most 1,000 points in total.
-- minRotation and maxRotation: from -360 to 360 degrees.
-- datalabels with display &#39;auto&#39;: at most 3,000 labels.
-- All the radial scales together: at most 1,000 spokes, 100,000 ring corners and 1,000 ticks. A scale with display false counts none of them, and gridLines.display false counts no corner.
-- Ticks: at most 1,000 per linear, logarithmic, time or radial axis, and 11,000 over all axes.
-- Border widths, line widths and radii: at most 50 pixels. padding: at most 100 pixels.
-- Each text: at most 10,000 characters.
-- options.ic.insideLabel: a text of at most 3,000 characters. minFontSize and maxFontSize are brought within 1 to 999 pixels.
-
-options.animation is ignored for a PNG chart.](#c)__
-        - __[chart(value) - Javascript/JSON definition of the chart. Use a Chart.js configuration object.
-
-A configuration over one of these limits answers 400 with the error code IS_VALIDATION_ERROR:
-- data.labels, data.xLabels, data.yLabels, data.datasets[i].data, options.scales.xAxes and options.scales.yAxes are arrays, or null.
-- No object of the configuration holds a length key.
-- At most 20 axes, 1,000 datasets, 10,000 labels per label list and 10,000 points in total.
-- borderDash and zeroLineBorderDash: at most 16 entries, at least 1 pixel per dash or space on average, and a line width at most 2 times the pattern. Dashed datasets run through at most 1,000 points in total.
-- minRotation and maxRotation: from -360 to 360 degrees.
-- datalabels with display &#39;auto&#39;: at most 3,000 labels.
-- All the radial scales together: at most 1,000 spokes, 100,000 ring corners and 1,000 ticks. A scale with display false counts none of them, and gridLines.display false counts no corner.
-- Ticks: at most 1,000 per linear, logarithmic, time or radial axis, and 11,000 over all axes.
-- Border widths, line widths and radii: at most 50 pixels. padding: at most 100 pixels.
-- Each text: at most 10,000 characters.
-- options.ic.insideLabel: a text of at most 3,000 characters. minFontSize and maxFontSize are brought within 1 to 999 pixels.
-
-options.animation is ignored for a PNG chart.](#chart)__
+        - __[c(value) - Javascript/JSON definition of the chart.](#c)__
+        - __[chart(value) - Javascript/JSON definition of the chart.](#chart)__
         - __[width(value) - Width of the chart, from 1 to 999 pixels](#width)__
         - __[height(value) - Height of the chart, from 1 to 999 pixels](#height)__
-        - __[backgroundColor(value) - Background of the chart canvas. Accepts rgb (rgb(255,255,120)), colors (red), and url-encoded hex values (%23ff00ff). Abbreviated as &#34;bkg&#34;](#backgroundcolor)__
-        - __[bkg(value) - Background of the chart canvas. Accepts rgb (rgb(255,255,120)), colors (red), and url-encoded hex values (%23ff00ff). Abbreviated as &#34;bkg&#34;](#bkg)__
-        - __[encoding(value) - Encoding of your &#34;chart&#34; parameter. Accepted values are url and base64.](#encoding)__
-        - __[icac(value) - image-charts enterprise `account_id`](#icac)__
+        - __[backgroundColor(value) - Background of the chart canvas.](#backgroundcolor)__
+        - __[bkg(value) - Background of the chart canvas.](#bkg)__
+        - __[encoding(value) - Encoding of your &#34;chart&#34; parameter.](#encoding)__
+        - __[icac(value) - Image-Charts paid plan `account_id`](#icac)__
         - __[ichm(value) - HMAC-SHA256 signature required to activate paid features](#ichm)__
         - __[icretina(value) - retina mode](#icretina)__
 
@@ -166,7 +136,7 @@ options.animation is ignored for a PNG chart.](#chart)__
 // Free usage - default configuration
 let chart = ChartJSImage::new();
 
-// Enterprise & Enterprise+ subscriptions
+// Paid plans (Business, Enterprise)
 let chart = ChartJSImage::builder()
     .secret("SECRET_KEY")
     .build();
@@ -332,8 +302,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 #### Enterprise Support
 
-Image-Charts Enterprise and Enterprise+ subscriptions remove the watermark and enable advanced features like
-custom-domain, high-resolution charts, custom fonts, multiple axis and mixed charts.
+Every paid plan (Business, Enterprise) removes the watermark and gives you a custom domain. The Enterprise plan (Enterprise+ in the reference documentation) adds custom fonts: on other plans, the chart is drawn with the default font.
 
 - [Pricing and plan comparison](https://www.image-charts.com/pricing)
 - [Enterprise documentation](https://documentation.image-charts.com/enterprise/)
@@ -595,7 +564,7 @@ options.animation is ignored for a PNG chart.
 <a name="icac"></a>
 #### `icac( value )` -> [`ChartJSImage`](#constructor)
 
-> image-charts enterprise `account_id`
+> Image-Charts paid plan `account_id`
 
 > [Reference](https://documentation.image-charts.com/enterprise/)
 

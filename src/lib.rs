@@ -125,7 +125,7 @@ pub struct ChartJSImageConfig {
     pub pathname: String,
     /// Request timeout
     pub timeout: Duration,
-    /// Enterprise secret key for signing
+    /// Paid plan secret key for signing
     pub secret: Option<String>,
     /// Custom user-agent string
     pub user_agent: Option<String>,
@@ -209,7 +209,7 @@ impl ChartJSImage {
         }
     }
 
-    /// Create a new ChartJSImage instance for Enterprise usage with a secret key
+    /// Create a paid plan instance, signed with its secret key
     ///
     /// # Example
     ///
@@ -252,7 +252,7 @@ impl ChartJSImage {
         /// Javascript/JSON definition of the chart. Use a Chart.js configuration object.
     ///  
     ///  A configuration over one of these limits answers 400 with the error code IS_VALIDATION_ERROR:
-    ///  - data.labels, data.xLabels, data.yLabels, data.datasets[i].data, options.scales.xAxes and options.scales.yAxes are arrays, or null.
+    ///  - data.labels, data.xLabels, data.yLabels, `data.datasets[i].data`, options.scales.xAxes and options.scales.yAxes are arrays, or null.
     ///  - No object of the configuration holds a length key.
     ///  - At most 20 axes, 1,000 datasets, 10,000 labels per label list and 10,000 points in total.
     ///  - borderDash and zeroLineBorderDash: at most 16 entries, at least 1 pixel per dash or space on average, and a line width at most 2 times the pattern. Dashed datasets run through at most 1,000 points in total.
@@ -278,7 +278,7 @@ impl ChartJSImage {
         /// Javascript/JSON definition of the chart. Use a Chart.js configuration object.
     ///  
     ///  A configuration over one of these limits answers 400 with the error code IS_VALIDATION_ERROR:
-    ///  - data.labels, data.xLabels, data.yLabels, data.datasets[i].data, options.scales.xAxes and options.scales.yAxes are arrays, or null.
+    ///  - data.labels, data.xLabels, data.yLabels, `data.datasets[i].data`, options.scales.xAxes and options.scales.yAxes are arrays, or null.
     ///  - No object of the configuration holds a length key.
     ///  - At most 20 axes, 1,000 datasets, 10,000 labels per label list and 10,000 points in total.
     ///  - borderDash and zeroLineBorderDash: at most 16 entries, at least 1 pixel per dash or space on average, and a line width at most 2 times the pattern. Dashed datasets run through at most 1,000 points in total.
@@ -377,7 +377,7 @@ impl ChartJSImage {
     pub fn encoding(self, value: impl Into<String>) -> Self {
         self.clone_with("encoding", value)
     }
-        /// image-charts enterprise `account_id`
+        /// Image-Charts paid plan `account_id`
     ///
     /// [Reference documentation](https://documentation.image-charts.com/enterprise/)
     ///
@@ -415,8 +415,8 @@ impl ChartJSImage {
     /// Get the full Image-Charts API URL (signed and encoded if necessary)
     ///
     /// This method returns the complete URL that can be used to fetch the chart image.
-    /// If an enterprise account ID (`icac`) is set and a secret is configured,
-    /// the URL will be automatically signed with HMAC-SHA256.
+    /// Signing needs the paid plan account ID (`icac`) and secret.
+    /// The URL is then signed with HMAC-SHA256.
     ///
     /// # Example
     ///
@@ -815,7 +815,10 @@ impl ChartJSImageBuilder {
         self
     }
 
-    /// Set the API host
+    /// Set the API host.
+    ///
+    /// A custom domain has no TLS.
+    /// Also set `protocol("http")` and `port(80)`.
     pub fn host(mut self, host: impl Into<String>) -> Self {
         self.host = Some(host.into());
         self
@@ -839,7 +842,7 @@ impl ChartJSImageBuilder {
         self
     }
 
-    /// Set the enterprise secret key for URL signing
+    /// Set the paid plan secret key for URL signing
     pub fn secret(mut self, secret: impl Into<String>) -> Self {
         self.secret = Some(secret.into());
         self
